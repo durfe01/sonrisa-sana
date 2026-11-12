@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Clínica Odontológica Sonrisa Sana — Sistema de Agendamiento</title>
+  <link rel="icon" type="image/jpeg" href="/static/logo.jpg" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -18,12 +19,10 @@
   <header class="bg-gradient-to-r from-[#0F4C81] to-[#00897B] text-white shadow-lg">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="bg-white/15 p-2 rounded-xl backdrop-blur">
-          <i data-lucide="sparkles" class="w-6 h-6 text-white"></i>
-        </div>
+        <img src="/static/logo.jpg" alt="Logo Sonrisa Sana" class="w-11 h-11 rounded-full object-cover bg-white p-0.5 shadow-md" />
         <div>
           <h1 class="font-bold text-lg leading-tight">Clínica Odontológica «Sonrisa Sana»</h1>
-          <p class="text-xs text-sky-100">Agendamiento Online &amp; Gestión Clínica Confidencial</p>
+          <p class="text-xs text-sky-100">Cuida tu sonrisa, mejora tu vida</p>
         </div>
       </div>
       <div id="user-badge" class="hidden items-center gap-4">
@@ -43,7 +42,10 @@
     <div class="max-w-4xl w-full grid md:grid-cols-2 bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200">
       <div class="p-8 bg-gradient-to-br from-[#0F4C81] to-[#0B355B] text-white flex flex-col justify-between">
         <div>
-          <span class="inline-block bg-teal-500/20 border border-teal-300/30 text-teal-100 text-xs font-semibold px-3 py-1 rounded-full mb-4">
+          <div class="flex justify-center mb-5">
+            <img src="/static/logo.jpg" alt="Logo Sonrisa Sana" class="w-36 h-36 rounded-full object-cover bg-white p-1 shadow-xl border-2 border-teal-300/40" />
+          </div>
+          <span class="inline-block bg-teal-500/20 border border-teal-300/30 text-teal-100 text-xs font-semibold px-3 py-1 rounded-full mb-3">
             Seguridad AES-256 · RBAC · Cero Choques
           </span>
           <h2 class="text-2xl font-bold mb-3">Tu sonrisa en manos seguras y puntuales</h2>
