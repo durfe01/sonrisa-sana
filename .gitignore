@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/
+.venv/
+venv/
+
+# Base de datos local y temporales SQLite
+*.db
+*.db-wal
+*.db-shm
+*.sqlite3
+
+# Temporales de Office y sistema
+~$*
+.DS_Store
+Thumbs.db

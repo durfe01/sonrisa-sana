@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clínica Odontológica Sonrisa Sana — Sistema de Agendamiento</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <style>
+    body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+  <!-- Barra de navegación superior -->
+  <header class="bg-gradient-to-r from-[#0F4C81] to-[#00897B] text-white shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="bg-white/15 p-2 rounded-xl backdrop-blur">
+          <i data-lucide="sparkles" class="w-6 h-6 text-white"></i>
+        </div>
+        <div>
+          <h1 class="font-bold text-lg leading-tight">Clínica Odontológica «Sonrisa Sana»</h1>
+          <p class="text-xs text-sky-100">Agendamiento Online &amp; Gestión Clínica Confidencial</p>
+        </div>
+      </div>
+      <div id="user-badge" class="hidden items-center gap-4">
+        <div class="text-right hidden sm:block">
+          <p id="nav-user-name" class="text-sm font-semibold"></p>
+          <span id="nav-user-role" class="text-xs bg-white/20 px-2 py-0.5 rounded-full"></span>
+        </div>
+        <button onclick="logout()" class="flex items-center gap-1.5 bg-white/15 hover:bg-white/25 px-3 py-1.5 rounded-lg text-sm font-medium transition">
+          <i data-lucide="log-out" class="w-4 h-4"></i> Salir
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Vista de Autenticación -->
+  <main id="auth-view" class="flex-1 flex items-center justify-center p-4">
+    <div class="max-w-4xl w-full grid md:grid-cols-2 bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200">
+      <div class="p-8 bg-gradient-to-br from-[#0F4C81] to-[#0B355B] text-white flex flex-col justify-between">
+        <div>
+          <span class="inline-block bg-teal-500/20 border border-teal-300/30 text-teal-100 text-xs font-semibold px-3 py-1 rounded-full mb-4">
+            Seguridad AES-256 · RBAC · Cero Choques
+          </span>
+          <h2 class="text-2xl font-bold mb-3">Tu sonrisa en manos seguras y puntuales</h2>
+          <p class="text-sm text-sky-100 leading-relaxed">
+            Reserva tu hora odontológica en menos de 1 minuto, recibe recordatorios automáticos y confía en la estricta confidencialidad de tu ficha clínica.
+          </p>
+        </div>
+        <div class="mt-8">
+          <p class="text-xs uppercase tracking-wider text-sky-200 font-semibold mb-2">Acceso rápido de demostración (Clave: Sonrisa2026!)</p>
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="demoLogin('maria.gonzalez@correo.cl')" class="bg-white/10 hover:bg-white/20 text-left px-3 py-2 rounded-lg text-xs transition">
+              <strong class="block">Paciente</strong>María González
+            </button>
+            <button onclick="demoLogin('secretaria@sonrisasana.cl')" class="bg-white/10 hover:bg-white/20 text-left px-3 py-2 rounded-lg text-xs transition">
+              <strong class="block">Secretaria</strong>Camila Rojas
+            </button>
+            <button onclick="demoLogin('valeria.munoz@sonrisasana.cl')" class="bg-white/10 hover:bg-white/20 text-left px-3 py-2 rounded-lg text-xs transition">
+              <strong class="block">Odontóloga</strong>Dra. Valeria Muñoz
+            </button>
+            <button onclick="demoLogin('admin@sonrisasana.cl')" class="bg-white/10 hover:bg-white/20 text-left px-3 py-2 rounded-lg text-xs transition">
+              <strong class="block">Administrador</strong>Fernando Durán
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-8">
+        <div class="flex gap-4 border-b border-slate-200 mb-6">
+          <button id="tab-login" onclick="switchAuthTab('login')" class="pb-2 text-sm font-semibold border-b-2 border-[#0F4C81] text-[#0F4C81]">Iniciar Sesión</button>
+          <button id="tab-register" onclick="switchAuthTab('register')" class="pb-2 text-sm font-semibold text-slate-500 hover:text-slate-700">Crear Cuenta Paciente</button>
+        </div>
+
+        <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Correo electrónico</label>
+            <input id="login-email" type="email" required class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-[#0F4C81] outline-none" placeholder="usuario@sonrisasana.cl" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Contraseña</label>
+            <input id="login-pass" type="password" required class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-[#0F4C81] outline-none" placeholder="••••••••" />
+          </div>
+          <button type="submit" class="w-full bg-[#0F4C81] hover:bg-[#0B3A63] text-white font-semibold py-2.5 rounded-xl shadow transition">
+            Ingresar al Sistema
+          </button>
+        </form>
+
+        <form id="register-form" onsubmit="handleRegister(event)" class="hidden space-y-3">
+          <div class="grid grid-cols-2 gap-3">
+            <input id="reg-rut" type="text" required placeholder="RUT (ej. 20123456-7)" class="px-3 py-2 border border-slate-300 rounded-xl text-sm" />
+            <input id="reg-nac" type="date" required class="px-3 py-2 border border-slate-300 rounded-xl text-sm" />
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <input id="reg-nom" type="text" required placeholder="Nombre" class="px-3 py-2 border border-slate-300 rounded-xl text-sm" />
+            <input id="reg-ape" type="text" required placeholder="Apellido" class="px-3 py-2 border border-slate-300 rounded-xl text-sm" />
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <input id="reg-tel" type="text" required placeholder="Teléfono (+569...)" class="px-3 py-2 border border-slate-300 rounded-xl text-sm" />
+            <select id="reg-prev" class="px-3 py-2 border border-slate-300 rounded-xl text-sm">
+              <option value="Fonasa">Fonasa</option>
+              <option value="Isapre">Isapre</option>
+              <option value="Particular">Particular</option>
+            </select>
+          </div>
+          <input id="reg-email" type="email" required placeholder="Correo electrónico" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm" />
+          <input id="reg-pass" type="password" required minlength="6" placeholder="Contraseña (mín. 6 caracteres)" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm" />
+          <label class="flex items-center gap-2 text-xs text-slate-600">
+            <input id="reg-consent" type="checkbox" checked required class="rounded text-[#0F4C81]" />
+            Autorizo el tratamiento confidencial de mis datos (Ley N° 19.628 / 21.719).
+          </label>
+          <button type="submit" class="w-full bg-[#00897B] hover:bg-[#00695C] text-white font-semibold py-2.5 rounded-xl shadow transition">
+            Registrarme y Reservar
+          </button>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <!-- Vista Principal del Sistema (por rol) -->
+  <section id="app-view" class="hidden flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+    <!-- Navegación interna por pestañas según rol -->
+    <div id="role-tabs" class="flex flex-wrap gap-2 bg-white p-2 rounded-2xl shadow-sm border border-slate-200"></div>
+
+    <!-- Panel Reserva Online -->
+    <div id="panel-reservar" class="hidden grid lg:grid-cols-3 gap-6">
+      <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+        <h3 class="font-bold text-lg text-[#0F4C81] flex items-center gap-2">
+          <i data-lucide="calendar-plus" class="w-5 h-5"></i> 1. Selecciona tu Atención
+        </h3>
+        <div id="sec-pac-select-wrap" class="hidden">
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Paciente</label>
+          <select id="res-paciente" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm"></select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Especialidad</label>
+          <select id="res-esp" onchange="filterDoctorsAndTypes()" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm"></select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Tipo de Atención</label>
+          <select id="res-tipo" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm"></select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Odontólogo</label>
+          <select id="res-od" onchange="loadSlots()" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm"></select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Fecha de Atención</label>
+          <input id="res-fecha" type="date" onchange="loadSlots()" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm" />
+        </div>
+      </div>
+
+      <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-between">
+        <div>
+          <h3 class="font-bold text-lg text-[#0F4C81] flex items-center gap-2 mb-4">
+            <i data-lucide="clock" class="w-5 h-5"></i> 2. Elige un Bloque Disponible (Validación Instantánea)
+          </h3>
+          <div id="slots-grid" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2.5"></div>
+        </div>
+        <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
+          <p class="text-xs text-slate-500">Se programará un recordatorio automático 24 h antes de tu cita.</p>
+          <button onclick="confirmBooking()" class="bg-[#00897B] hover:bg-[#00695C] text-white font-semibold px-6 py-2.5 rounded-xl shadow transition flex items-center gap-2">
+            <i data-lucide="check-circle" class="w-4 h-4"></i> 3. Confirmar Reserva
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel Agenda (Secretaría / Paciente / Odontólogo) -->
+    <div id="panel-agenda" class="hidden bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <h3 class="font-bold text-lg text-[#0F4C81] flex items-center gap-2">
+          <i data-lucide="calendar-days" class="w-5 h-5"></i> Agenda de Citas
+        </h3>
+        <div class="flex flex-wrap items-center gap-2">
+          <input id="flt-fecha" type="date" onchange="loadAgenda()" class="px-3 py-1.5 border border-slate-300 rounded-xl text-sm" />
+          <button onclick="document.getElementById('flt-fecha').value=''; loadAgenda()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 rounded-xl text-xs font-semibold">Ver Todas</button>
+          <button id="btn-new-pac" onclick="openNewPatientModal()" class="hidden px-3 py-1.5 bg-[#0F4C81] text-white rounded-xl text-xs font-semibold hover:bg-[#0B3A63]">+ Nuevo Paciente</button>
+        </div>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm text-left">
+          <thead class="bg-slate-100 text-slate-600 text-xs uppercase">
+            <tr>
+              <th class="px-4 py-3 rounded-l-xl">Fecha / Hora</th>
+              <th class="px-4 py-3">Paciente</th>
+              <th class="px-4 py-3">Odontólogo</th>
+              <th class="px-4 py-3">Atención</th>
+              <th class="px-4 py-3">Estado</th>
+              <th class="px-4 py-3 rounded-r-xl text-right">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="agenda-tbody" class="divide-y divide-slate-100"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Panel Ficha Clínica Confidencial (Solo Odontólogo) -->
+    <div id="panel-ficha" class="hidden space-y-6">
+      <div class="bg-gradient-to-r from-pink-900 to-rose-800 text-white p-5 rounded-2xl shadow flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <i data-lucide="shield-check" class="w-8 h-8 text-pink-200"></i>
+          <div>
+            <h3 class="font-bold text-lg">Ficha Clínica Confidencial (Cifrado AES-256)</h3>
+            <p class="text-xs text-pink-100">Acceso exclusivo para rol Odontólogo. Toda consulta queda auditada.</p>
+          </div>
+        </div>
+        <select id="ficha-pac-select" onchange="loadClinicalRecord()" class="text-slate-900 px-3.5 py-2 rounded-xl text-sm font-medium min-w-[260px]"></select>
+      </div>
+
+      <div class="grid lg:grid-cols-2 gap-6">
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+          <h4 class="font-bold text-[#0F4C81]">Antecedentes y Evoluciones Previas</h4>
+          <div id="ficha-resumen" class="p-4 bg-rose-50 border border-rose-200 rounded-xl text-sm space-y-1"></div>
+          <div id="ficha-evoluciones" class="space-y-3 max-h-80 overflow-y-auto"></div>
+        </div>
+
+        <form onsubmit="saveEvolution(event)" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-3">
+          <h4 class="font-bold text-[#0F4C81]">Registrar Nueva Evolución Clínica</h4>
+          <div class="grid grid-cols-2 gap-3">
+            <input id="ev-pieza" type="text" placeholder="Pieza dental (ej. 1.6)" class="px-3 py-2 border border-slate-300 rounded-xl text-sm" />
+            <input id="ev-cita" type="number" placeholder="ID Cita (opcional)" class="px-3 py-2 border border-slate-300 rounded-xl text-sm" />
+          </div>
+          <input id="ev-alergias" type="text" placeholder="Actualizar alergias (opcional)" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm" />
+          <textarea id="ev-diag" required rows="2" placeholder="Diagnóstico clínico (se cifrará AES-256)..." class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm"></textarea>
+          <textarea id="ev-trat" required rows="2" placeholder="Tratamiento realizado..." class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm"></textarea>
+          <input id="ev-ind" type="text" placeholder="Indicaciones al paciente" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm" />
+          <button type="submit" class="w-full bg-rose-800 hover:bg-rose-900 text-white font-semibold py-2.5 rounded-xl shadow transition">
+            Guardar Evolución Cifrada
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Panel Recordatorios y Dashboard Admin -->
+    <div id="panel-admin" class="hidden space-y-6">
+      <div class="grid lg:grid-cols-3 gap-6">
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+          <h4 class="font-bold text-[#0F4C81] mb-3">Estado de Citas</h4>
+          <canvas id="chart-estados" height="220"></canvas>
+        </div>
+        <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-3">
+          <div class="flex items-center justify-between">
+            <h4 class="font-bold text-[#0F4C81]">Cola de Recordatorios Automáticos</h4>
+            <button onclick="runReminders()" class="px-3 py-1.5 bg-[#00897B] text-white text-xs font-semibold rounded-xl hover:bg-[#00695C]">
+              Procesar Recordatorios Ahora
+            </button>
+          </div>
+          <div class="overflow-x-auto max-h-56 overflow-y-auto">
+            <table class="w-full text-xs text-left">
+              <thead class="bg-slate-100 text-slate-600 uppercase">
+                <tr><th class="px-3 py-2">Paciente</th><th class="px-3 py-2">Cita</th><th class="px-3 py-2">Programado</th><th class="px-3 py-2">Estado</th></tr>
+              </thead>
+              <tbody id="rem-tbody" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-3">
+        <h4 class="font-bold text-[#0F4C81]">Auditoría de Seguridad y Accesos Recientes</h4>
+        <div class="overflow-x-auto max-h-60 overflow-y-auto">
+          <table class="w-full text-xs text-left">
+            <thead class="bg-slate-100 text-slate-600 uppercase">
+              <tr><th class="px-3 py-2">Fecha/Hora</th><th class="px-3 py-2">Usuario</th><th class="px-3 py-2">Acción</th><th class="px-3 py-2">Entidad</th><th class="px-3 py-2">Detalle</th></tr>
+            </thead>
+            <tbody id="audit-tbody" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
